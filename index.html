@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Website</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        nav {
+            background-color: #f4f4f4;
+            padding: 1rem;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+        nav a {
+            text-decoration: none;
+            color: #333;
+        }
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .dashboard-card {
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin: 1rem 0;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to My Website</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <h2>Fitness Tracking Dashboard</h2>
+            <p>Comprehensive analysis of user fitness activities and health metrics</p>
+        </section>
+
+        <section class="dashboard">
+            <div class="dashboard-card">
+                <h3>Activity Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="workoutTypeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>Daily Steps Overview</h3>
+                <div class="chart-container">
+                    <canvas id="stepsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>Sleep Patterns</h3>
+                <div class="chart-container">
+                    <canvas id="sleepChart"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>Quick Stats</h3>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">8,432</div>
+                        <div class="stat-label">Avg Daily Steps</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">2,150</div>
+                        <div class="stat-label">Avg Calories Burned</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">7.2</div>
+                        <div class="stat-label">Avg Sleep Hours</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">85</div>
+                        <div class="stat-label">Avg Heart Rate</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Sample data for charts
+        const workoutData = {
+            labels: ['Running', 'Walking', 'Cycling', 'Swimming', 'Yoga', 'Gym'],
+            datasets: [{
+                data: [20, 25, 15, 10, 15, 15],
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#9966FF',
+                    '#FF9F40'
+                ]
+            }]
+        };
+
+        const stepsData = {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Steps',
+                data: [7000, 8500, 9200, 7800, 8900, 10200, 6500],
+                borderColor: '#36A2EB',
+                tension: 0.4,
+                fill: false
+            }]
+        };
+
+        const sleepData = {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Hours',
+                data: [7.5, 6.8, 7.2, 8.1, 6.5, 8.5, 7.8],
+                backgroundColor: '#9966FF',
+                borderColor: '#7744CC',
+                tension: 0.4
+            }]
+        };
+
+        // Create charts
+        new Chart(document.getElementById('workoutTypeChart'), {
+            type: 'pie',
+            data: workoutData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        new Chart(document.getElementById('stepsChart'), {
+            type: 'line',
+            data: stepsData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('sleepChart'), {
+            type: 'line',
+            data: sleepData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+    <footer>
+        <p>&copy; 2024 My Website. All rights reserved.</p>
+    </footer>
+</body>
+</html>
