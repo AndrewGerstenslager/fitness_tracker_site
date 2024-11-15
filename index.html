@@ -3,443 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Fitness Tracker Dashboard</title>
     <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
         body {
             font-family: Arial, sans-serif;
-            line-height: 1.6;
+            margin: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
         }
-        header {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 1rem;
+        select {
+            padding: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
         }
-        nav {
-            background-color: #f4f4f4;
-            padding: 1rem;
-        }
-        nav ul {
-            list-style: none;
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-        }
-        nav a {
-            text-decoration: none;
-            color: #333;
-        }
-        main {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-        .hero {
-            text-align: center;
-            padding: 3rem 0;
-        }
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin: 2rem 0;
-        }
-        .dashboard-card {
-            padding: 1.5rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background: white;
-        }
-        .chart-container {
-            width: 100%;
-            height: 300px;
-            margin: 1rem 0;
-        }
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        .stat-card {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 5px;
-            text-align: center;
-        }
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #333;
-        }
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-        }
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 1rem;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+        #userData {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Welcome to My Website</h1>
-    </header>
+    <h1>Fitness Tracker Dashboard</h1>
+    
+    <label for="userSelect">Select User ID:</label>
+    <select id="userSelect">
+        <option value="">Select a user...</option>
+    </select>
 
-    <nav>
-        <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#services">Services</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
-    </nav>
-
-    <main>
-        <section class="hero">
-            <section class="hero">
-                <h2>Fitness Tracking Dashboard</h2>
-                <p>Comprehensive analysis of user fitness activities and health metrics</p>
-                <div style="margin: 20px 0;">
-                    <label for="userSelect">Select User ID: </label>
-                    <select id="userSelect" onchange="updateDashboard()">
-                        <option value="">Select a user...</option>
-                    </select>
-                </div>
-            </section>
-        <section class="dashboard">
-            <div class="dashboard-card">
-                <h3>Activity Distribution</h3>
-                <div class="chart-container">
-                    <canvas id="workoutTypeChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="dashboard-card">
-                <h3>Daily Steps Overview</h3>
-                <div class="chart-container">
-                    <canvas id="stepsChart"></canvas>
-                </div>
-            </div>
-
-            <div class="dashboard-card">
-                <h3>Sleep Patterns</h3>
-                <div class="chart-container">
-                    <canvas id="sleepChart"></canvas>
-                </div>
-            </div>
-
-            <div class="dashboard-card">
-                <h3>Quick Stats</h3>
-                <div class="stat-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">8,432</div>
-                        <div class="stat-label">Avg Daily Steps</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">2,150</div>
-                        <div class="stat-label">Avg Calories Burned</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">7.2</div>
-                        <div class="stat-label">Avg Sleep Hours</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">85</div>
-                        <div class="stat-label">Avg Heart Rate</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
+    <div id="userData"></div>
 
     <script>
-        console.log("Fitness Tracker Dashboard is live! 🏃‍♂️");
-        
-        // Fetch and display first row of database
-        fetch('/get_first_row')
+        // Fetch user IDs when page loads
+        fetch('http://localhost:5000/get_user_ids')
             .then(response => response.json())
-            .then(data => {
-                console.log("First row of database:", data);
-            })
-            .catch(error => console.error('Error fetching first row:', error));
-            
-        let workoutTypeChart, stepsChart, sleepChart;
-
-        // Fetch user IDs and populate dropdown
-        fetch('/get_user_ids')
-            .then(response => response.json())
-            .then(users => {
-                console.log('Available user IDs:', users);
+            .then(userIds => {
                 const select = document.getElementById('userSelect');
-                users.forEach(userId => {
+                userIds.forEach(userId => {
                     const option = document.createElement('option');
                     option.value = userId;
                     option.textContent = `User ${userId}`;
                     select.appendChild(option);
                 });
             })
-            .catch(error => {
-                console.error('Error fetching user IDs:', error);
-            });
+            .catch(error => console.error('Error fetching user IDs:', error));
 
-        async function updateDashboard() {
-            const userId = document.getElementById('userSelect').value;
+        // Handle user selection
+        document.getElementById('userSelect').addEventListener('change', function() {
+            const userId = this.value;
             if (!userId) return;
 
-            try {
-                const response = await fetch(`/get_user_data/${userId}`);
-                const userData = await response.json();
-                updateCharts(userData);
-                updateStats(userData);
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        }
-
-        function updateCharts(userData) {
-            // Update workout type chart
-            const workoutData = {
-                labels: Object.keys(userData.workout_distribution),
-                datasets: [{
-                    data: Object.values(userData.workout_distribution),
-                    backgroundColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56', 
-                        '#4BC0C0', '#9966FF', '#FF9F40'
-                    ]
-                }]
-            };
-            workoutTypeChart.data = workoutData;
-            workoutTypeChart.update();
-
-            // Update steps chart
-            const stepsData = {
-                labels: userData.dates,
-                datasets: [{
-                    label: 'Steps',
-                    data: userData.steps_data,
-                    borderColor: '#36A2EB',
-                    tension: 0.4,
-                    fill: false
-                }]
-            };
-            stepsChart.data = stepsData;
-            stepsChart.update();
-
-            // Update sleep chart
-            const sleepData = {
-                labels: userData.dates,
-                datasets: [{
-                    label: 'Sleep Hours',
-                    data: userData.sleep_data,
-                    backgroundColor: '#9966FF',
-                    borderColor: '#7744CC',
-                    tension: 0.4
-                }]
-            };
-            sleepChart.data = sleepData;
-            sleepChart.update();
-        }
-
-        function updateStats(userData) {
-            document.querySelectorAll('.stat-value')[0].textContent = userData.avg_steps.toLocaleString();
-            document.querySelectorAll('.stat-value')[1].textContent = userData.avg_calories.toLocaleString();
-            document.querySelectorAll('.stat-value')[2].textContent = userData.avg_sleep.toFixed(1);
-            document.querySelectorAll('.stat-value')[3].textContent = userData.avg_heart_rate.toFixed(0);
-        }
-
-        // Initialize charts with empty data
-        document.addEventListener('DOMContentLoaded', function() {
-            workoutTypeChart = new Chart(document.getElementById('workoutTypeChart'), {
-                type: 'pie',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        data: [],
-                        backgroundColor: []
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-
-            stepsChart = new Chart(document.getElementById('stepsChart'), {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Steps',
-                        data: [],
-                        borderColor: '#36A2EB',
-                        tension: 0.4,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            sleepChart = new Chart(document.getElementById('sleepChart'), {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Sleep Hours',
-                        data: [],
-                        backgroundColor: '#9966FF',
-                        borderColor: '#7744CC',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
+            fetch(`http://localhost:5000/get_user_data/${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const userDataDiv = document.getElementById('userData');
+                    userDataDiv.innerHTML = `
+                        <h2>User ${userId} Statistics</h2>
+                        <p>Average Steps: ${Math.round(data.avg_steps)}</p>
+                        <p>Average Calories Burned: ${Math.round(data.avg_calories)}</p>
+                        <p>Average Sleep Hours: ${data.avg_sleep.toFixed(2)}</p>
+                        <p>Average Heart Rate: ${Math.round(data.avg_heart_rate)}</p>
+                        
+                        <h3>Workout Distribution:</h3>
+                        <ul>
+                            ${Object.entries(data.workout_distribution)
+                                .map(([type, count]) => `<li>${type}: ${count}</li>`)
+                                .join('')}
+                        </ul>
+                    `;
+                })
+                .catch(error => console.error('Error fetching user data:', error));
         });
-                    // Fetch user IDs and populate dropdown
-                    fetch('/get_user_ids')
-                        .then(response => response.json())
-                        .then(users => {
-                            const select = document.getElementById('userSelect');
-                            users.forEach(userId => {
-                                const option = document.createElement('option');
-                                option.value = userId;
-                                option.textContent = `User ${userId}`;
-                                select.appendChild(option);
-                            });
-                        });
-                
-                    async function updateDashboard() {
-                        const userId = document.getElementById('userSelect').value;
-                        if (!userId) return;
-                
-                        try {
-                            const response = await fetch(`/get_user_data/${userId}`);
-                            const userData = await response.json();
-                            
-                            // Update charts with the new data
-                            updateCharts(userData);
-                            updateStats(userData);
-                        } catch (error) {
-                            console.error('Error fetching user data:', error);
-                        }
-                    }
-                
-                    function updateCharts(userData) {
-                        // Update workout type chart
-                        workoutTypeChart.data = userData.workoutData;
-                        workoutTypeChart.update();
-                
-                        // Update steps chart
-                        stepsChart.data = userData.stepsData;
-                        stepsChart.update();
-                
-                        // Update sleep chart
-                        sleepChart.data = userData.sleepData;
-                        sleepChart.update();
-                    }
-                
-                    function updateStats(userData) {
-                        // Update quick stats
-                        document.querySelectorAll('.stat-value')[0].textContent = userData.avgSteps;
-                        document.querySelectorAll('.stat-value')[1].textContent = userData.avgCalories;
-                        document.querySelectorAll('.stat-value')[2].textContent = userData.avgSleep;
-                        document.querySelectorAll('.stat-value')[3].textContent = userData.avgHeartRate;
-                    }
-                
-                    // Initial charts setup with sample data
-        };
-
-        const stepsData = {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            datasets: [{
-                label: 'Steps',
-                data: [7000, 8500, 9200, 7800, 8900, 10200, 6500],
-                borderColor: '#36A2EB',
-                tension: 0.4,
-                fill: false
-            }]
-        };
-
-        const sleepData = {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            datasets: [{
-                label: 'Hours',
-                data: [7.5, 6.8, 7.2, 8.1, 6.5, 8.5, 7.8],
-                backgroundColor: '#9966FF',
-                borderColor: '#7744CC',
-                tension: 0.4
-            }]
-        };
-
-        // Create charts
-        new Chart(document.getElementById('workoutTypeChart'), {
-            type: 'pie',
-            data: workoutData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-
-        new Chart(document.getElementById('stepsChart'), {
-            type: 'line',
-            data: stepsData,
-            // Create charts
-            const workoutTypeChart = new Chart(document.getElementById('workoutTypeChart'), {
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-const stepsChart = new Chart(document.getElementById('stepsChart'), {
-        new Chart(document.getElementById('sleepChart'), {
-            type: 'line',
-            data: sleepData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    const sleepChart = new Chart(document.getElementById('sleepChart'), {
-
-    <footer>
-        <p>&copy; 2024 My Website. All rights reserved.</p>
-    </footer>
+    </script>
 </body>
 </html>
+
