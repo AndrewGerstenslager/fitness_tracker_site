@@ -4,74 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fitness Tracker Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        select {
-            padding: 8px;
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-        #userData {
-            margin-top: 20px;
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Fitness Tracker Dashboard</h1>
-    
-    <label for="userSelect">Select User ID:</label>
-    <select id="userSelect">
-        <option value="">Select a user...</option>
-    </select>
+    <header>
+        <h1>Fitness Tracker Dashboard</h1>
+    </header>
 
-    <div id="userData"></div>
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <h2>Fitness Tracking Dashboard</h2>
+            <p>Comprehensive analysis of user fitness activities and health metrics</p>
+            <div style="margin: 20px 0;">
+                <label for="userSelect">Select User ID: </label>
+                <select id="userSelect">
+                    <option value="">Select a user...</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="dashboard">
+            <div class="dashboard-card">
+                <h3>Activity Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="workoutTypeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>Daily Steps Overview</h3>
+                <div class="chart-container">
+                    <canvas id="stepsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>Sleep Patterns</h3>
+                <div class="chart-container">
+                    <canvas id="sleepChart"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>Quick Stats</h3>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">-</div>
+                        <div class="stat-label">Avg Daily Steps</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">-</div>
+                        <div class="stat-label">Avg Calories Burned</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">-</div>
+                        <div class="stat-label">Avg Sleep Hours</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">-</div>
+                        <div class="stat-label">Avg Heart Rate</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    
 
     <script>
-        // Fetch user IDs when page loads
-        fetch('http://localhost:5000/get_user_ids')
-            .then(response => response.json())
-            .then(userIds => {
-                const select = document.getElementById('userSelect');
-                userIds.forEach(userId => {
-                    const option = document.createElement('option');
-                    option.value = userId;
-                    option.textContent = `User ${userId}`;
-                    select.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Error fetching user IDs:', error));
-
-        // Handle user selection
-        document.getElementById('userSelect').addEventListener('change', function() {
-            const userId = this.value;
-            if (!userId) return;
-
-            fetch(`http://localhost:5000/get_user_data/${userId}`)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch user IDs when page loads
+            fetch('http://localhost:5000/get_user_ids')
                 .then(response => response.json())
-                .then(data => {
-                    const userDataDiv = document.getElementById('userData');
-                    userDataDiv.innerHTML = `
-                        <h2>User ${userId} Statistics</h2>
-                        <p>Average Steps: ${Math.round(data.avg_steps)}</p>
-                        <p>Average Calories Burned: ${Math.round(data.avg_calories)}</p>
-                        <p>Average Sleep Hours: ${data.avg_sleep.toFixed(2)}</p>
-                        <p>Average Heart Rate: ${Math.round(data.avg_heart_rate)}</p>
-                        
-                        <h3>Workout Distribution:</h3>
-                        <ul>
-                            ${Object.entries(data.workout_distribution)
-                                .map(([type, count]) => `<li>${type}: ${count}</li>`)
-                                .join('')}
-                        </ul>
-                    `;
+                .then(userIds => {
+                    const select = document.getElementById('userSelect');
+                    userIds.forEach(userId => {
+                        const option = document.createElement('option');
+                        option.value = userId;
+                        option.textContent = `User ${userId}`;
+                        select.appendChild(option);
+                    });
+                    
+                    // Automatically select the first user
+                    if (userIds.length > 0) {
+                        select.value = userIds[0];
+                        // Trigger the change event to load the first user's data
+                        select.dispatchEvent(new Event('change'));
+                    }
                 })
-                .catch(error => console.error('Error fetching user data:', error));
+                .catch(error => console.error('Error fetching user IDs:', error));
+
+            // Handle user selection
+            document.getElementById('userSelect').addEventListener('change', function() {
+                const userId = this.value;
+                if (!userId) return;
+
+                fetch(`http://localhost:5000/get_user_data/${userId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        updateDashboard(data);
+                    })
+                    .catch(error => console.error('Error fetching user data:', error));
+            });
         });
     </script>
 </body>
